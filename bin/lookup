@@ -174,7 +174,7 @@ debug() (
   fi
 )
 message-in-a-box() (
-  len=${COLUMNS:-$(tput cols)}
+  len=${COLUMNS:-$(tput cols 2>/dev/null || true)}
   len=${len:-80}
   line=$(eval "printf '*%.0s' {1..$len}")
 
