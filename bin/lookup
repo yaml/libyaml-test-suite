@@ -2,6 +2,7 @@
 
 # shellcheck disable=1090
 
+set -x
 set -e -u -o pipefail
 
 main() {
