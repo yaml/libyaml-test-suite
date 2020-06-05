@@ -175,7 +175,7 @@ debug() (
   fi
 )
 message-in-a-box() (
-  len=${COLUMNS:-$([[ -z $TERM ]] || tput cols)}
+  len=${COLUMNS:-$([[ -z $TERM || $TERM == dumb ]] || tput cols)}
   len=${len:-80}
   line=$(eval "printf '*%.0s' {1..$len}")
 
