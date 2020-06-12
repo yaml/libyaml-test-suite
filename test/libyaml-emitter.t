@@ -23,7 +23,7 @@ run-test() {
   want=$dir/out.yaml
   [[ -e $want ]] || want="$dir/in.yaml"
 
-  ../../tests/run-emitter-test-suite "$dir/test.event" > /tmp/test.out || {
+  "${LIBYAML_ROOT:?}/tests/run-emitter-test-suite" "$dir/test.event" > /tmp/test.out || {
     (
       cat "$dir/test.event"
       cat "$want"

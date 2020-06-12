@@ -2,13 +2,24 @@ SHELL = bash
 
 export ENV := $(shell pwd)/env
 
+# Check if inside of libyaml repo:
+ifneq ($(wildcard ../src/yaml_private.h),)
+    export LIBYAML_ROOT := ..
+else
+    export LIBYAML_ROOT ?= libyaml
+    export LIBYAML_COMMIT ?= master
+    export LIBYAML_REPO ?= https://github.com/yaml/libyaml
+endif
+
+PARSER := $(LIBYAML_ROOT)/tests/run-parser-test-suite
+
 ifdef env
     export LIBYAML_TEST_SUITE_ENV := $(env)
 endif
 
 .ONESHELL:
 .PHONY: test
-test: data
+test: $(PARSER) data
 	@set -ex
 	[[ "$(debug)" ]] && export LIBYAML_TEST_SUITE_DEBUG=1
 	export LIBYAML_TEST_SUITE_ENV=$$(./bin/lookup env)
@@ -21,6 +32,15 @@ test: data
 
 test-all:
 	prove -v test/test-all.sh
+
+$(PARSER): $(LIBYAML_ROOT)
+	cd $<
+	./bootstrap
+	./configure
+	make all
+
+$(LIBYAML_ROOT):
+	git clone $(LIBYAML_REPO) $@
 
 data:
 	@set -ex

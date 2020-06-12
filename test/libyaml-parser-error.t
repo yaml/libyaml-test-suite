@@ -20,7 +20,7 @@ run-test() {
   dir=$1
   ok=false
 
-  ../../tests/run-parser-test-suite "$dir/in.yaml" > /tmp/test.out 2>&1 || ok=true
+  "${LIBYAML_ROOT:?}/tests/run-parser-test-suite" "$dir/in.yaml" > /tmp/test.out 2>&1 || ok=true
 
   $ok || output=$(< /tmp/test.out)
 }

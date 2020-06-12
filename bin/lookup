@@ -19,7 +19,7 @@ main() {
     debug "Looking up test-suite env"
   fi
 
-  base=$(cd ../.. && pwd)
+  base=$(cd ${LIBYAML_ROOT:?} && pwd)
   head=$(get-head-commit)
 
   if [[ $lookup == default-warning ]]; then
