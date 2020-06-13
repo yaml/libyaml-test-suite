@@ -32,7 +32,7 @@ test-all:
 	prove -v test/test-all.sh
 
 $(PARSER): $(LIBYAML_ROOT)
-	cd $<
+	cd $< || { echo "cd $< failed"; pwd; ls -l; exit 1; }
 	./bootstrap
 	./configure
 	make all
