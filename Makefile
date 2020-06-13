@@ -1,21 +1,19 @@
 SHELL = bash
 
-export ENV := $(shell pwd)/env
-
-# Check if inside of libyaml repo:
-ifneq ($(wildcard ../src/yaml_private.h),)
-    export LIBYAML_ROOT := ..
+ifeq ($(LIBYAML_ROOT),)
+  export LIBYAML_ROOT := libyaml
 else
-    export LIBYAML_ROOT ?= libyaml
-    export LIBYAML_COMMIT ?= master
-    export LIBYAML_REPO ?= https://github.com/yaml/libyaml
+  ifeq ($(wildcard $(LIBYAML_ROOT)/src/yaml_private.h),)
+    $(error LIBYAML_ROOT=$(LIBYAML_ROOT) is not a libyaml repo clone directory)
+  endif
 endif
+
+export LIBYAML_COMMIT ?= master
+export LIBYAML_REPO ?= https://github.com/yaml/libyaml
 
 PARSER := $(LIBYAML_ROOT)/tests/run-parser-test-suite
 
-ifdef env
-    export LIBYAML_TEST_SUITE_ENV := $(env)
-endif
+# export LIBYAML_TEST_SUITE_ENV := $(env)
 
 .ONESHELL:
 .PHONY: test
@@ -52,5 +50,5 @@ data:
 	(cd $@ && git reset --hard $$commit)
 
 clean:
-	rm -fr data
+	rm -fr data libyaml
 	rm -f env/tmp-*
