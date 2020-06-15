@@ -8,16 +8,14 @@ else
   endif
 endif
 
-export LIBYAML_COMMIT ?= master
 export LIBYAML_REPO ?= https://github.com/yaml/libyaml
+export LIBYAML_COMMIT ?= master
 
-PARSER := $(LIBYAML_ROOT)/tests/run-parser-test-suite
+PARSER_TEST := $(LIBYAML_ROOT)/tests/run-parser-test-suite
 
-# export LIBYAML_TEST_SUITE_ENV := $(env)
-
-.ONESHELL:
+# .ONESHELL:
 .PHONY: test
-test: $(PARSER) data
+test: $(PARSER_TEST) data
 	@set -ex
 	[[ "$(debug)" ]] && export LIBYAML_TEST_SUITE_DEBUG=1
 	export LIBYAML_TEST_SUITE_ENV=$$(./bin/lookup env)
@@ -31,14 +29,17 @@ test: $(PARSER) data
 test-all:
 	prove -v test/test-all.sh
 
-$(PARSER): $(LIBYAML_ROOT)
-	cd $<
-	./bootstrap
-	./configure
-	make all
+$(PARSER_TEST): $(LIBYAML_ROOT)
+	( \
+	  cd $<; \
+	  ./bootstrap; \
+	  ./configure; \
+	  make all; \
+	)
 
 $(LIBYAML_ROOT):
 	git clone $(LIBYAML_REPO) $@
+	git reset --hard $(LIBYAML_COMMIT)
 
 data:
 	@set -ex
