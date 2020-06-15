@@ -29,9 +29,6 @@ test-all:
 	prove -v test/test-all.sh
 
 $(PARSER_TEST): $(LIBYAML_ROOT)
-	echo PARSER_TEST=$(PARSER_TEST)
-	echo LIBYAML_ROOT=$(LIBYAML_ROOT)
-	ls -l $(LIBYAML_ROOT)/tests
 	( \
 	  cd $< && \
 	  ./bootstrap && \
