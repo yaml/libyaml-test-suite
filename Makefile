@@ -13,42 +13,47 @@ export LIBYAML_COMMIT ?= master
 
 PARSER_TEST := $(LIBYAML_ROOT)/tests/run-parser-test-suite
 
+# .ONESHELL is great but needs make 4.1+
 # .ONESHELL:
 .PHONY: test
 test: $(PARSER_TEST) data
-	@set -ex
-	[[ "$(debug)" ]] && export LIBYAML_TEST_SUITE_DEBUG=1
-	export LIBYAML_TEST_SUITE_ENV=$$(./bin/lookup env)
-	[[ $$LIBYAML_TEST_SUITE_ENV ]] || exit 1
-	set +ex
-	(set -x; prove -v test/)
-	if [[ $$LIBYAML_TEST_SUITE_ENV == env/default ]]; then
-	  ./bin/lookup default-warning
-	fi
+	( \
+	  export LIBYAML_TEST_SUITE_ENV=$$(LIBYAML_TEST_SUITE_ENV=$(debug) ./bin/lookup env); \
+	  [[ $$LIBYAML_TEST_SUITE_ENV ]] || exit 1; \
+	  prove -v test/; \
+	  [[ $$LIBYAML_TEST_SUITE_ENV != env/default ]] || \
+	    ./bin/lookup default-warning \
+	)
 
 test-all:
 	prove -v test/test-all.sh
 
 $(PARSER_TEST): $(LIBYAML_ROOT)
+	echo PARSER_TEST=$(PARSER_TEST)
+	echo LIBYAML_ROOT=$(LIBYAML_ROOT)
+	ls -l $(LIBYAML_ROOT)/tests
 	( \
-	  cd $<; \
-	  ./bootstrap; \
-	  ./configure; \
-	  make all; \
+	  cd $< && \
+	  ./bootstrap && \
+	  ./configure && \
+	  make all \
 	)
 
 $(LIBYAML_ROOT):
 	git clone $(LIBYAML_REPO) $@
-	git reset --hard $(LIBYAML_COMMIT)
+	( \
+	  cd $@ && \
+	  git reset --hard $(LIBYAML_COMMIT) \
+	)
 
 data:
-	@set -ex
-	[[ "$(debug)" ]] && export LIBYAML_TEST_SUITE_DEBUG=1
-	data=$$(./bin/lookup data); repo=$${data%\ *}; commit=$${data#*\ }
-	[[ $$data ]] || exit 1
-	echo "repo=$$repo commit=$$commit"
-	git clone $$repo $@
-	(cd $@ && git reset --hard $$commit)
+	( \
+	  data=$$(LIBYAML_TEST_SUITE_DEBUG=$(debug) ./bin/lookup data); repo=$${data%\ *}; commit=$${data#*\ }; \
+	  [[ $$repo && $$commit ]] || exit 1; \
+	  echo "repo=$$repo commit=$$commit"; \
+	  git clone $$repo $@; \
+	  cd $@ && git reset --hard $$commit \
+	)
 
 clean:
 	rm -fr data libyaml
